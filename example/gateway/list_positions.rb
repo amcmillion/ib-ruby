@@ -24,7 +24,7 @@ port =  case specified_port
 					when /^[gG]/ 
 						4002
 					when /^[Tt]/
-						7497
+						7496
 					end
 ARGV.clear
 

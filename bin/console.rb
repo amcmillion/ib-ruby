@@ -49,7 +49,7 @@ end # Array
 					when /^[gG]/ 
 						4002
 					when /^[Tt]/
-						7497
+						7496
 					end
   ARGV.clear
   logger = default_logger #  Logger.new  STDOUT

@@ -48,7 +48,7 @@ end # Array
 					when Integer
 						specified_port  # just use the number
 					when /^[gG]/ 
-						4002
+            7496
 					when /^[Tt]/
 						7497
 					end
