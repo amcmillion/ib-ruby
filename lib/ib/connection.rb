@@ -34,65 +34,67 @@ module IB
     alias next_order_id next_local_id
     alias next_order_id= next_local_id=
     
-    def initialize host: '127.0.0.1',
-                   port: '4002', # IB Gateway connection (default --> demo) 4001:  production
-                       #:port => '7497', # TWS connection  --> demo				  7496:  production
-                   connect: true, # Connect at initialization
-                   received:  true, # Keep all received messages in a @received Hash
-#									 redis: false,    # future plans
-                   logger: default_logger,
-                   client_id: random_id, 
-                   client_version: IB::Messages::CLIENT_VERSION,	# lib/ib/server_versions.rb
-									 optional_capacities: "", # TWS-Version 974: "+PACEAPI" 
-                   #server_version: IB::Messages::SERVER_VERSION, # lib/messages.rb
-		   **any_other_parameters_which_are_ignored
-			 # V 974 release motes
-# API messages sent at a higher rate than 50/second can now be paced by TWS at the 50/second rate instead of potentially causing a disconnection. This is now done automatically by the RTD Server API and can be done with other API technologies by invoking SetConnectOptions("+PACEAPI") prior to eConnect.
+    def initialize(
+				host: '127.0.0.1',
+				port: '40023', # IB Gateway connection (default --> demo) 4001:  production
+				# port: '7496', # TWS connection  --> demo				  7496:  production
+				connect: true, # Connect at initialization
+				received: true, # Keep all received messages in a @received Hash
+				#									 redis: false,    # future plans
+				logger: default_logger,
+				client_id: random_id,
+				client_version: IB::Messages::CLIENT_VERSION, # lib/ib/server_versions.rb
+				optional_capacities: "", # TWS-Version 974: "+PACEAPI"
+				#server_version: IB::Messages::SERVER_VERSION, # lib/messages.rb
+				**any_other_parameters_which_are_ignored
+		)
+			# V 974 release motes
+			# API messages sent at a higher rate than 50/second can now be paced by TWS at the 50/second rate instead of potentially causing a disconnection. This is now done automatically by the RTD Server API and can be done with other API technologies by invoking SetConnectOptions("+PACEAPI") prior to eConnect.
 
 
-    # convert parameters into instance-variables and assign them
-		method(__method__).parameters.each do |type, k|
-			next unless type == :key
-			case k
-			when :logger
-				self.logger = logger  
-			else
-				v = eval(k.to_s)
-				instance_variable_set("@#{k}", v) unless v.nil?
+			# convert parameters into instance-variables and assign them
+			method(__method__).parameters.each do |type, k|
+				next unless type == :key
+				case k
+				when :logger
+					self.logger = logger
+				else
+					v = eval(k.to_s)
+					instance_variable_set("@#{k}", v) unless v.nil?
+				end
 			end
-		end
 
-		# A couple of locks to avoid race conditions in JRuby
-		@subscribe_lock = Mutex.new
-		@receive_lock = Mutex.new
-		@message_lock = Mutex.new
+			# A couple of locks to avoid race conditions in JRuby
+			@subscribe_lock = Mutex.new
+			@receive_lock = Mutex.new
+			@message_lock = Mutex.new
 
-		@connected = false
-		self.next_local_id = nil
+			@connected = false
+			self.next_local_id = nil
 
-		#     self.subscribe(:Alert) do |msg|
-		#       puts msg.to_human
-		#     end
+			#     self.subscribe(:Alert) do |msg|
+			#       puts msg.to_human
+			#     end
 
-		# TWS always sends NextValidId message at connect -subscribe save this id
-		## this block is executed before tws-communication is established
-		yield self if block_given?
+			# TWS always sends NextValidId message at connect -subscribe save this id
+			## this block is executed before tws-communication is established
+			yield self if block_given?
 
-		self.subscribe(:NextValidId) do |msg|
-			logger.progname = "Connection#connect"
-			self.next_local_id = msg.local_id
-			logger.info { "Got next valid order id: #{next_local_id}." }
-		end
+			self.subscribe(:NextValidId) do |msg|
+				logger.progname = "Connection#connect"
+				self.next_local_id = msg.local_id
+				logger.info { "Got next valid order id: #{next_local_id}." }
+			end
 
-		# Ensure the transmission of NextValidId.
-		# works even if no reader_thread is established
-		if connect
-			disconnect if connected?
-			 update_next_order_id
-			Kernel.exit if self.next_local_id.nil?
-		end
-		#start_reader if @received && connected?
-		Connection.current = self
+			# Ensure the transmission of NextValidId.
+			# works even if no reader_thread is established
+			if connect
+				disconnect if connected?
+				update_next_order_id
+				Kernel.exit if self.next_local_id.nil?
+			end
+			#start_reader if @received && connected?
+			Connection.current = self
 		end
 
 		# read actual order_id and
@@ -116,7 +118,7 @@ module IB
 				return
 			end
 
-			self.socket = IBSocket.open(@host, @port)  # raises  Errno::ECONNREFUSED  if no connection is possible
+			self.socket = IBSocket.open(@host, '7496') #@port)  # raises  Errno::ECONNREFUSED  if no connection is possible
 			socket.initialising_handshake
 			socket.decode_message( socket.recieve_messages ) do  | the_message |
 				#				logger.info{ "TheMessage :: #{the_message.inspect}" }

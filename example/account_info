@@ -12,7 +12,7 @@ account_code = ARGV[0] || ''
 include IB
 # Connect to IB TWS
 accounts =  []
-ib = Connection.new client_id: 1113, port: 4002 do | gw |  # :port => 7497 # TWS
+ib = Connection.new client_id: 1113, port: 7496 do | gw |  # :port => 7497 # TWS
 
 	# Subscribe to TWS alerts/errors and account-related messages
 	# that TWS sends in response to account data request
