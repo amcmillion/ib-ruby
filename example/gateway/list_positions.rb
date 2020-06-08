@@ -19,41 +19,41 @@ logger.level = Logger::INFO
 client_id = ARGV[1] ||  2500
 specified_port = ARGV[0] || 'Gateway'
 port =  case specified_port
-					when Integer
-						specified_port  # just use the number
-					when /^[gG]/ 
-						4002
-					when /^[Tt]/
-						7496
-					end
+				when Integer
+					specified_port  # just use the number
+				when /^[gG]/
+					4002
+				when /^[Tt]/
+					7496
+				end
 ARGV.clear
 
-	begin
+begin
 	G =  IB::Gateway.new  get_account_data: true,
-			client_id: client_id, port: port, logger: logger
-	rescue IB::TransmissionError => e
-		puts "E: #{e.inspect}"
-	end
+												client_id: client_id, port: port, logger: logger
+rescue IB::TransmissionError => e
+	puts "E: #{e.inspect}"
+end
 
 
-	puts "List of Contracts"
+puts "List of Contracts"
+puts '-'*25
+puts	G.all_contracts.map(&:to_human).join("\n")
+puts '-'*25
+
+
+G.active_accounts.each do | user |
+	puts "\n"*3
+	puts "Positions Account: #{user.account}"
 	puts '-'*25
-  puts	G.all_contracts.map(&:to_human).join("\n")
+	puts	user.portfolio_values.map(&:to_human).join("\n")
 	puts '-'*25
-
-
-	G.active_accounts.each do | user |
-		puts "\n"*3
-		puts "Postions Account: #{user.account}"
-		puts '-'*25
-		puts	user.portfolio_values.map(&:to_human).join("\n")
-		puts '-'*25
-	end
+end
 
 
 
-	# Gateway.all_contracts is defined in lib/ib/account_infos.rb
-	# and is simply
-	# active_accounts.map(&:contracts).flat_map(&:itself).uniq(&:con_id)
-	#
+# Gateway.all_contracts is defined in lib/ib/account_infos.rb
+# and is simply
+# active_accounts.map(&:contracts).flat_map(&:itself).uniq(&:con_id)
+#
 

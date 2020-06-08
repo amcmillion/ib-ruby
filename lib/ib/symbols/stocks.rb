@@ -15,6 +15,10 @@ module IB
 																:currency => "USD",
 																:description => "Apple Inc."),
 
+	 :spy => IB::Stock.new(:symbol => "SPY",
+																:currency => "USD",
+																:description => "S&P 500 Index-tracker ETF"),
+
 	 :msft => IB::Stock.new( symbol: 'MSFT', primary_exchange: 'ISLAND',
 																description: 'Apple, primary trading @ ISLAND'), ## primary exchange set
 	 :vxx =>	IB::Stock.new(:symbol => "VXX",
