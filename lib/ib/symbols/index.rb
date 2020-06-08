@@ -17,7 +17,7 @@ module IB
 																		:description => "Mini Hang Seng Index" ),
 		     :stoxx => IB::Index.new(:symbol => "Estx50", :currency => "EUR", exchange: 'DTB',
                                     :description => "Dow Jones Euro STOXX50"),
-		     :spx => IB::Index.new(:symbol => "SPX", :currency => "USD", exchange: 'CBOE',
+		     :spx => IB::Index.new(:symbol => "SPX", :currency => "USD", :exchange => 'NYSE',
                                     :description => "Dow Jones Euro STOXX50"),
 				 :vhsi =>  IB::Index.new( symbol: 'VHSI',
 																		:description => "Hang Seng Volatility Index"),
