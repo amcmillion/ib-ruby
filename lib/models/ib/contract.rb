@@ -287,31 +287,6 @@ module IB
       "#{symbol}(#{strike}) #{right} #{last_trading_day} /#{exchange}/#{currency}"
       end
     end
-    # Testing for type of contract:
-		# depreciated :  use is_a?(IB::Stock, IB::Bond, IB::Bag etc) instead
-		def bag?  #  :nodoc:
-      self[:sec_type] == 'BAG'
-    end
-
-    def bond?  #  :nodoc:
-
-      self[:sec_type] == 'BOND'
-    end
-
-    def stock? #  :nodoc:
-
-      self[:sec_type] == 'STK'
-    end
-
-    def option?  #  :nodoc:
-
-      self[:sec_type] == 'OPT'
-    end
-
-    def index?  #  :nodoc:
-
-      self[:sec_type] == 'IND'
-    end
 
 =begin
 From the release notes of TWS 9.50
