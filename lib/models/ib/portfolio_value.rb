@@ -1,52 +1,77 @@
 module IB
-	# Describes a contract held in a portfolio position.
-	class PortfolioValue < IB::Model
-		include BaseProperties
-	#	belongs_to :currency
-		belongs_to :account
-		belongs_to :contract
+  # Describes a contract held in a portfolio position.
+  class PortfolioValue < IB::Model
+    include BaseProperties
+    #	belongs_to :currency
+    belongs_to :account
+    belongs_to :contract
 
-#	scope :single, ->(key) { where :schluessel => key } rescue nil
+    #	scope :single, ->(key) { where :schluessel => key } rescue nil
 
-		prop :position,
-				 :market_price,
-				 :market_value,
-				 :average_cost,
-				 :unrealized_pnl,
-				 :realized_pnl
+    prop :position,
+         :market_price,
+         :market_value,
+         :average_cost,
+         :unrealized_pnl,
+         :realized_pnl
 
 
-# Order comparison
-		def == other
-			super(other) ||
-					other.is_a?(self.class) &&
-							market_price == other.market_price &&
-							average_cost == other.average_cost &&
-							position == other.position &&
-							unrealized_pnl == other.unrealized_pnl  &&
-							realized_pnl == other.realized_pnl &&
-							contract == other.contract
-		end
-		def to_human
-			the_account = if account.present?
-											if account.is_a?(String)
-												account + " "
-											else
-												account.account+" "
-											end
-										else
-											""
-										end
+    # Order comparison
+    def == other
+      super(other) ||
+        other.is_a?(self.class) &&
+          market_price == other.market_price &&
+          average_cost == other.average_cost &&
+          position == other.position &&
+          unrealized_pnl == other.unrealized_pnl &&
+          realized_pnl == other.realized_pnl &&
+          contract == other.contract
+    end
 
-			"<PortfolioValue: "+
-					the_account  +
-					"Pos=#{ position.to_i } @ #{market_price.to_f.round(3)};" +
-					"Value=#{market_value.to_f.round(2)};PNL=" +
-					( unrealized_pnl.to_i.zero? ? "": "#{unrealized_pnl} unrealized;") +
-					( realized_pnl.to_i.zero? ? "" : "#{realized_pnl} realized;>" ) +
-					contract.to_human
-		end
-		alias to_s to_human
+    def to_human
+      the_account = if account.present?
+                      if account.is_a?(String)
+                        account + " "
+                      else
+                        account.account + " "
+                      end
+                    else
+                      ""
+                    end
+
+      "<PortfolioValue: " +
+        the_account +
+        "Pos=#{ position.to_i } @ #{market_price.to_f.round(3)};" +
+        "Value=#{market_value.to_f.round(2)};PNL=" +
+        (unrealized_pnl.to_i.zero? ? "" : "#{unrealized_pnl} unrealized;") +
+        (realized_pnl.to_i.zero? ? "" : "#{realized_pnl} realized;>") +
+        contract.to_human
+    end
+
+    alias to_s to_human
+
+    def stock?
+      contract.is_a?(IB::Stock)
+    end
+
+    def option?
+      contract.is_a?(IB::Option)
+    end
+
+    def long?
+      position > 0
+    end
+
+    def short?
+      position < 0
+    end
+
+    alias stonk? stock?
+
+    def cost_basis
+      position * average_cost
+    end
+
 
 
 #	def to_invest
@@ -61,5 +86,5 @@ module IB
 #
 #
 #	end
-	end # class
+  end # class
 end # module
