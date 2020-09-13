@@ -308,7 +308,7 @@ module IB
     ### Sending Outgoing messages to IB
 
     # Send an outgoing message.
-		# returns the used request_id if appropiate, otherwise "true"
+		# returns the used request_id if appropriate, otherwise "true"
     def send_message what, *args
       message =
       case

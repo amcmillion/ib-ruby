@@ -313,7 +313,11 @@ In places where these terms are used to indicate a concept, we have left them as
 			else
 				@attributes[:expiry]
 			end
-		end
+    end
+
+    def bag?
+      self.is_a?(IB::Bag)
+    end
 
 		
 # is read by Account#PlaceOrder to set requirements for contract-types, as NonGuaranteed for stock-spreads
@@ -361,7 +365,7 @@ In places where these terms are used to indicate a concept, we have left them as
 		# does NOT work with Straddle,Strangle,Calendar,Vertical and other spread-types
 		# 
 		# is used to copy Contracts by value
-    def self.build opts = {}
+    def self.build(opts = {})
       subclass =( VALUES[:sec_type][opts[:sec_type]] || opts['sec_type'] || opts[:sec_type]).to_sym
       Contract::Subclasses[subclass].new opts
     end

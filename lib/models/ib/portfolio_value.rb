@@ -41,8 +41,8 @@ module IB
 
       "<PortfolioValue: " +
         the_account +
-        "Pos=#{ position.to_i } @ #{market_price.to_f.round(3)};" +
-        "Value=#{market_value.to_f.round(2)};PNL=" +
+        "Pos=#{ position.to_i } @ #{market_price.to_f.round(3)}; " +
+        "Value=#{market_value.to_f.round(2)}; PNL=" +
         (unrealized_pnl.to_i.zero? ? "" : "#{unrealized_pnl} unrealized;") +
         (realized_pnl.to_i.zero? ? "" : "#{realized_pnl} realized;>") +
         contract.to_human
@@ -64,6 +64,10 @@ module IB
 
     def short?
       position < 0
+    end
+
+    def symbol
+      contract.symbol
     end
 
     alias stonk? stock?

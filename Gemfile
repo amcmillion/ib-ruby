@@ -13,4 +13,5 @@ gem "rspec-its"
 gem 'rspec-collection_matchers'
 gem 'guard'
 gem 'guard-rspec'
-
+gem 'activerecord'
+gem 'pg'

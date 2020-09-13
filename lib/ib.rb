@@ -14,7 +14,7 @@ Ib = IB
 
 # IB Models can be either lightweight (tableless) or database-backed.
 # By default there is no DB backend, unless specifically requested
-# require 'ib/db' # to make all IB models database-backed
+require 'ib/db' # to make all IB models database-backed
 
 if IB.rails?
   require 'ib/engine'
