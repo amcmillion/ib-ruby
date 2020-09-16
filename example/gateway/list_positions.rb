@@ -13,6 +13,7 @@ require 'yaml'
 require 'ib-gateway'
 require 'logger'
 require 'ib/db'
+require 'indicators/sma'
 
 logger = Logger.new STDOUT
 logger.level = Logger::INFO
@@ -101,70 +102,30 @@ G.active_accounts.each do |user|
     File.binread("snapshots/#{user.account}_2020-08-29_all_positions.txt")
   )
 
-  closed_positions = old_positions.select { |old|
-    old.stock? &&
-      !portfolio_values.map(&:contract).map(&:symbol).include?(old.symbol)
-  }
+  Indicators::SMA.new(contract: portfolio_values.select { |c| c.symbol == 'AAPL' }.first.contract, dur: 50).call
 
-  total_pnl = 0
-  positions_gaining_since_closed = []
-  closed_positions.map { |closed|
-    begin
-      if portfolio_values.map(&:contract).map(&:symbol).include?(closed.symbol)
-        p "*****ERROR: Closed position #{closed.symbol} was found in current portfolio!"
-      else
-        p "Closed position: #{closed.position} #{closed.contract.symbol} #{closed.contract.class}"
-        closed_contract = closed.contract
-        closed_contract.exchange = "SMART"
 
-        current_price = nil
-        closed_contract.eod do |results|
-          current_price = results.first.close
-        end
+  return
 
-        delta_usd = (current_price * closed.position) - closed.market_value
-        # delta_perc = (current_price / closed.market_)
-        p "Closed value = $#{closed.market_value}"
-        p "Current value = $#{(current_price * closed.position)}"
-        p "Missed P/L$ : #{delta_usd}"
-        # p "Missed P/L% : #{current_value}"
-        total_pnl += delta_usd
+  # CHECK CLOSED POSITION PERFORMANCE
+  long_stocks.each do |s|
+    contract = s.contract
+    # TODO: why won't the exchanges sent by IB work for historical data queries?
+    contract.exchange = "SMART"
+    # contract.verify!
 
-        if delta_usd.positive?
-          positions_gaining_since_closed << {
-            symbol: closed.symbol,
-            closed_at: closed.market_price,
-            current_price: current_price,
-            delta_usd: delta_usd
-          }
-        end
-      end
-    rescue Timeout::Error
+    p "Checking hist data for #{contract.symbol}"
+
+    results = nil
+    contract.eod(duration: 50, timeout: 2) do |r|
+      results = r #.each { |s| puts s.to_human }
     end
-  }
 
-  p "RESULT: Closed positions resulted in a P/L of $#{total_pnl}"
+    p "BAD CONTRACTS: #{bad_contracts.count}"
 
-
-  if false
-    # CHECK CLOSED POSITION PERFORMANCE
-    long_stocks.each do |s|
-      contract = s.contract
-      # TODO: why won't the exchanges sent by IB work for historical data queries?
-      contract.exchange = "SMART"
-      # contract.verify!
-
-      p "Checking hist data for #{contract.symbol}"
-
-      contract.eod(duration: 10, timeout: 2) do |results|
-        results.each { |s| puts s.to_human }
-      end
-      p "BAD CONTRACTS: #{bad_contracts.count}"
-
-    rescue Timeout::Error
-      p "******ERROR: could not fetch data for #{contract}"
-      bad_contracts << contract
-    end
+  rescue Timeout::Error
+    p "******ERROR: could not fetch data for #{contract}"
+    bad_contracts << contract
   end
 
 
